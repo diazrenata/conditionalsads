@@ -59,7 +59,7 @@ make_toy_data <- function(constraint = "FS", nsamples = 50, ctrl_s = 10, ctrl_n 
   if(constraint == "FS") {
     h3[1:nsamples, ] <- sample_feasibleset(ctrl_s, ctrl_n, nsamples)
    for(j in (nsamples+1):nrow(h3)) {
-     nonconstraint_samples <- floor(runif(n = ctrl_s - 1, min = 1, max = floor(ctrl_n/ctrl_s)))
+     nonconstraint_samples <- floor(runif(n = ctrl_s - 1, min = floor(.8 * floor(ctrl_n/ctrl_s)), max = floor(1.2 * floor(ctrl_n/ctrl_s))))
      nonconstraint_samples <- c(nonconstraint_samples, ctrl_n - sum(nonconstraint_samples))
      nonconstraint_samples <- sort(nonconstraint_samples)
     h3[j, ] <- nonconstraint_samples
@@ -68,7 +68,7 @@ make_toy_data <- function(constraint = "FS", nsamples = 50, ctrl_s = 10, ctrl_n 
   if (constraint == "METE") {
     h3[1:nsamples, ] <- sample_METE(ctrl_s, ctrl_n, nsamples)
     for(j in (nsamples+1):nrow(h3)) {
-      nonconstraint_samples <- floor(runif(n = ctrl_s - 1, min = 1, max = floor(ctrl_n/ctrl_s)))
+      nonconstraint_samples <- floor(runif(n = ctrl_s - 1, min = floor(.8 * floor(ctrl_n/ctrl_s)), max = floor(1.2 * floor(ctrl_n/ctrl_s))))
       nonconstraint_samples <- c(nonconstraint_samples, ctrl_n - sum(nonconstraint_samples))
       nonconstraint_samples <- sort(nonconstraint_samples)
       h3[j, ] <- nonconstraint_samples
@@ -87,7 +87,7 @@ make_toy_data <- function(constraint = "FS", nsamples = 50, ctrl_s = 10, ctrl_n 
   if(constraint == "FS") {
     h4[1:nsamples, ] <- sample_feasibleset(ctrl_s, ctrl_n, nsamples)
     for(j in (nsamples+1):nrow(h4)) {
-      nonconstraint_samples <- floor(runif(n = trt_s - 1, min = 1, max = floor(trt_n/trt_s)))
+      nonconstraint_samples <- floor(runif(n = trt_s - 1, min = floor(.8 * floor(trt_n/trt_s)), max = floor(1.2 * floor(trt_n/trt_s))))
       nonconstraint_samples <- c(nonconstraint_samples, trt_n - sum(nonconstraint_samples))
       nonconstraint_samples <- sort(nonconstraint_samples)
       h4[j, 1:trt_s] <- nonconstraint_samples
@@ -96,7 +96,7 @@ make_toy_data <- function(constraint = "FS", nsamples = 50, ctrl_s = 10, ctrl_n 
   if (constraint == "METE") {
     h4[1:nsamples, ] <- sample_METE(ctrl_s, ctrl_n, nsamples)
     for(j in (nsamples+1):nrow(h4)) {
-      nonconstraint_samples <- floor(runif(n = trt_s - 1, min = 1, max = floor(trt_n/trt_s)))
+      nonconstraint_samples <- floor(runif(n = trt_s - 1, min = floor(.8 * floor(trt_n/trt_s)), max = floor(1.2 * floor(trt_n/trt_s))))
       nonconstraint_samples <- c(nonconstraint_samples, trt_n - sum(nonconstraint_samples))
       nonconstraint_samples <- sort(nonconstraint_samples)
       h4[j, 1:trt_s] <- nonconstraint_samples
