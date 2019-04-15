@@ -109,5 +109,5 @@ make_toy_data <- function(constraint = "FS", nsamples = 50, ctrl_s = 10, ctrl_n 
   h4 <- cbind(c(rep('h4', nrow(h4))), h4)
   colnames(h4)[1:2] <- c("h", "trtmnt")
 
-  return(list(h1, h2, h3, h4))
+  return(rbind(h1, h2, h3, h4))
 }

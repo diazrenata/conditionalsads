@@ -1,0 +1,117 @@
+---
+title: "Demo with toy data"
+author: "Renata Diaz"
+date: "4/14/2019"
+output: github_document
+---
+
+```{r setup}
+library(conditionalsads)
+```
+
+This analysis will also source functions from `meteR` and `feasiblesads`. 
+
+## 1. Generate toy data
+
+Generate toy dataset that captures 4 scenarios:
+
+  1. S and N are the same for control and manipulated communities, and both are drawn from the statistical constraint.
+  
+  2. S and N change with manipulation, but both are drawn from their respective constraints.
+  
+  3. S and N remain the same, but the manipulated community is drawn from a near-uniform distribution rather than the statistical constraint.
+  
+  4. S and N change, and the manipulated community is drawn from a near-uniform distribution.
+  
+Within each scenario there are `nsamples` communities in each treatment group. The control communities always have `ctrl_s` species and `ctrl_n` individuals. For scenarios 2 and 4, the treatment communities have approximately 80% of the species and individuals as the control communities. 
+
+```{r generate toy data}
+
+toy_fs = make_toy_data(constraint = "FS", nsamples = 1, ctrl_s = 5, ctrl_n = 100)
+str(toy_fs)
+head(toy_fs)
+
+```
+
+## 2. Generate samples from constraints
+
+For each sample, generate 100 samples from the feasible set and from the METE distribution. 
+
+**These will be the sample_sads for comparison.**
+
+
+```{r sample constraints}
+
+constraint_samples <- list()
+
+for(i in 1:nrow(toy_fs)) {
+  s = length(which(!is.na(toy_fs[i, 3:ncol(toy_fs)])))
+  n = sum(toy_fs[i,3:ncol(toy_fs)], na.rm = T)
+  this_fs <- sample_feasibleset(s = s, n = n, nsamples = 100)
+  this_mete <- sample_METE(s = s, n= n, nsamples = 100)
+  
+  these_constraint_samples <- list(this_fs, this_mete)
+  
+  constraint_samples[[i]] <- these_constraint_samples
+}
+
+
+```
+
+
+## 3. Calculate test statistics 
+
+Empirical R2 and bootstrapped R2.
+
+This heavy lifting should go in a function. It will be a nightmare once you put in realistic numbers. 
+
+```{r R2}
+
+fs_r2 <- list()
+mete_r2 <- list()
+
+for(i in 1:nrow(toy_fs)) {
+ s = length(which(!is.na(toy_fs[i, 3:ncol(toy_fs)])))
+  n = sum(toy_fs[i,3:ncol(toy_fs)], na.rm = T)
+fs_ct <- feasiblesads::tally_sets(conditionalsads::sample_feasibleset(s = s, n = n, nsamples = 100)) %>%
+  dplyr::select(-set_frequency) %>%
+  feasiblesads::find_ct() %>%
+  as.integer()
+
+  fs_empirical_r2 <- r2(as.integer(toy_fs[i, 3:(s+2)]), fs_ct)
+  
+  fs_samples <- constraint_samples[[i]][[1]]
+  
+  fs_samples_r2 <- vector(length = nrow(fs_samples))
+  
+  for(j in 1:nrow(fs_samples)) {
+    fs_samples_r2[j] <- r2(fs_samples[j, ], fs_ct)
+  }
+  
+  fs_r2s <- list(fs_empirical_r2, fs_samples_r2)
+  
+  fs_r2[[i]] <- fs_r2s
+  
+  mete_pred <- sort(meteR::meteDist2Rank(meteR::sad(meteR::meteESF(S0 = s, N0 = n))))
+
+  mete_empirical_r2 <- r2(as.integer(toy_fs[i, 3:(s+2)]), mete_pred)
+  
+  mete_samples <- constraint_samples[[i]][[2]]
+  mete_samples_r2 <- vector(length = nrow(mete_samples))
+  
+  for(j in 1:nrow(mete_samples)){
+    mete_samples_r2[j] <- r2(mete_samples[j,], mete_pred)
+  }
+  
+  mete_r2s <- list(mete_empirical_r2, mete_samples_r2)
+  
+  mete_r2[[i]] <- mete_r2s
+  
+}
+
+```
+
+
+## 4. Get quantiles of empirical test statistics vs. constraints
+
+## 5. Compare quantiles across experimental treatments
