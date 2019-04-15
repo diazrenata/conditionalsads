@@ -62,16 +62,55 @@ rad_skew <- function(focal_rad){
   return(skew)
 }
 
-#
-#' @title Calculate the quantile of a test stat for a focal RAD vs. a sample of RADs
+
+#' @title Get test stats for empirical and sampled RADs
 #'
-#' @param focal_stat Single test stat (R2, evenness, skew) from focal distribution
-#' @param sample_stats Vector of test stats from sample distributions
+#' @description Wrapper for stats functions in conditionalsads.
 #'
-#' @return focal_quantile
+#' @param empirical_rad vector RAD for empirical community
+#' @param sampled_rads matrix RAD for sampled communities
+#' @param stat character "r2", "evar", "simpson", "rad_skew"
+#' @param constraint if stat = r2, vector comparison RAD (central tendency of feasible set, or METE prediction)
+#'
+#' @return list of empirical test stat, sampled test stats
 #' @export
 #'
-test_quantile <- function(focal_stat, sample_stats){
+get_stat_list <- function(empirical_rad, sampled_rads, stat = "r2",
+                          constraint = NULL) {
+  stat_function <- match.fun(stat)
+
+  stat_results_empirical <- NA
+  stat_results_sampled <- vector(length = nrow(sampled_rads))
+
+  if(stat == 'r2') {
+
+    if(!is.null(constraint)) {
+
+    stat_results_empirical <- stat_function(empirical_rad, constraint)
+    stat_results_sampled <- apply(sampled_rads, MARGIN = 1, FUN = stat_function,
+                                  compare_rad = constraint)
+    }
+
+  } else {
+    stat_results_empirical <- stat_function(empirical_rad)
+    stat_results_sampled <- apply(sampled_rads, MARGIN = 1, FUN = stat_function)
+  }
+
+  stat_results <- list(stat_results_empirical, stat_results_sampled)
+  return(stat_results)
+}
+
+
+#' @title Calculate the quantile of a test stat for a focal RAD vs. a sample of RADs
+#'
+#' @param stats_list list of (1) single test stat (R2, evenness, skew) from focal distribution and (2) vector of test stats from sample distributions
+#'
+#' @return focal_quantile of focal vs. sample
+#' @export
+#'
+test_quantile <- function(stats_list){
+  focal_stat = stats_list[[1]]
+  sample_stats = stats_list[[2]]
   sample_ecdf <- ecdf(sample_stats)
   focal_q <- sample_ecdf(focal_stat)
   return(focal_q)

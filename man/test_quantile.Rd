@@ -4,15 +4,13 @@
 \alias{test_quantile}
 \title{Calculate the quantile of a test stat for a focal RAD vs. a sample of RADs}
 \usage{
-test_quantile(focal_stat, sample_stats)
+test_quantile(stats_list)
 }
 \arguments{
-\item{focal_stat}{Single test stat (R2, evenness, skew) from focal distribution}
-
-\item{sample_stats}{Vector of test stats from sample distributions}
+\item{stats_list}{list of (1) single test stat (R2, evenness, skew) from focal distribution and (2) vector of test stats from sample distributions}
 }
 \value{
-focal_quantile
+focal_quantile of focal vs. sample
 }
 \description{
 Calculate the quantile of a test stat for a focal RAD vs. a sample of RADs
