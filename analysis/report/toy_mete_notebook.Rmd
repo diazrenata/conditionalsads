@@ -1,0 +1,223 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+  html_notebook:
+    df_print: paged
+---
+
+```{r setup}
+library(conditionalsads)
+```
+
+This analysis will also source functions from `meteR` and `feasiblesads`. 
+
+## 1. Generate toy data
+
+Generate toy dataset that captures 4 scenarios:
+
+1. S and N are the same for control and manipulated communities, and both are drawn from the statistical constraint.
+
+2. S and N change with manipulation, but both are drawn from their respective constraints.
+
+3. S and N remain the same, but the manipulated community is drawn from a near-uniform distribution rather than the statistical constraint.
+
+4. S and N change, and the manipulated community is drawn from a near-uniform distribution.
+
+Within each scenario there are `nsamples` communities in each treatment group. The control communities always have `ctrl_s` species and `ctrl_n` individuals. For scenarios 2 and 4, the treatment communities have approximately 80% of the species and individuals as the control communities. 
+
+```{r generate toy data}
+
+toy_mete = make_toy_data(constraint = "METE", nsamples = 10, ctrl_s = 5, ctrl_n = 100)
+str(toy_mete)
+head(toy_mete)
+
+```
+
+## 2. Generate samples from constraints
+
+For each sample, generate `nsamples` samples from the feasible set and from the METE distribution. 
+
+**These will be the sample_sads for comparison.**
+
+
+```{r sample constraints}
+
+nsamples <- 100
+
+constraint_samples <- list()
+
+for(i in 1:nrow(toy_mete)) {
+  s = length(which(!is.na(toy_mete[i, 3:ncol(toy_mete)])))
+  n = sum(toy_mete[i,3:ncol(toy_mete)], na.rm = T)
+  this_fs <- sample_feasibleset(s = s, n = n, nsamples)
+  this_mete <- sample_METE(s = s, n= n, nsamples)
+  
+  these_constraint_samples <- list(this_fs, this_mete)
+  
+  constraint_samples[[i]] <- these_constraint_samples
+  
+  rm(this_fs)
+  rm(this_mete)
+  rm(these_constraint_samples)
+}
+
+
+```
+
+
+## 3. Calculate test statistics 
+
+* Empirical R2 and sample R2 compared to most-likely constraint vector.
+* Empirical and sample evenness (Evar and Simpson's) and skew.
+
+```{r R2}
+
+fs_r2 <- list()
+mete_r2 <- list()
+
+fs_evar <- list()
+fs_simp <- list()
+fs_skew <- list()
+
+mete_evar <- list()
+mete_simp <- list()
+mete_skew <- list()
+
+for(i in 1:nrow(toy_mete)) {
+  s = length(which(!is.na(toy_mete[i, 3:ncol(toy_mete)])))
+  n = sum(toy_mete[i,3:ncol(toy_mete)], na.rm = T)
+  fs_r2[[i]] <- get_stat_list(empirical_rad = as.integer(toy_mete[i, 3:(s+2)]),
+                              sampled_rads = constraint_samples[[i]][[1]],
+                              stat = "r2", constraint = get_fs_ct(s, n, nsamples = nsamples))
+  mete_r2[[i]] <- get_stat_list(empirical_rad = as.integer(toy_mete[i, 3:(s+2)]),
+                                sampled_rads = constraint_samples[[i]][[1]],
+                                stat = "r2", constraint = get_mete_prediction(s, n))
+
+  fs_evar[[i]] <- get_stat_list(empirical_rad = as.integer(toy_mete[i, 3:(s+2)]),
+                                sampled_rads = constraint_samples[[i]][[1]],
+                                stat = "evar")
+  fs_simp[[i]] <- get_stat_list(empirical_rad = as.integer(toy_mete[i, 3:(s+2)]),
+                                sampled_rads = constraint_samples[[i]][[1]],
+                                stat = "simpson")
+  fs_skew[[i]] <-  get_stat_list(empirical_rad = as.integer(toy_mete[i, 3:(s+2)]),
+                                sampled_rads = constraint_samples[[i]][[1]],
+                                stat = "rad_skew")
+  
+  mete_evar[[i]] <- get_stat_list(empirical_rad = as.integer(toy_mete[i, 3:(s+2)]),
+                                sampled_rads = constraint_samples[[i]][[2]],
+                                stat = "evar")
+  mete_simp[[i]] <- get_stat_list(empirical_rad = as.integer(toy_mete[i, 3:(s+2)]),
+                                sampled_rads = constraint_samples[[i]][[2]],
+                                stat = "simpson")
+  mete_skew[[i]] <- get_stat_list(empirical_rad = as.integer(toy_mete[i, 3:(s+2)]),
+                                sampled_rads = constraint_samples[[i]][[2]],
+                                stat = "rad_skew")
+  
+  
+  rm(s)
+  rm(n)
+}
+
+```
+
+
+## 4. Get quantiles of empirical test statistics vs. constraints
+
+```{r get quantiles}
+fs_r2_quantile <- vapply(fs_r2, FUN = test_quantile, FUN.VALUE = 1)
+fs_evar_quantile <- vapply(fs_evar, FUN = test_quantile, FUN.VALUE = 1)
+fs_simp_quantile <- vapply(fs_simp, FUN = test_quantile, FUN.VALUE = 1)
+fs_skew_quantile <- vapply(fs_skew, FUN = test_quantile, FUN.VALUE = 1)
+
+
+mete_r2_quantile <- vapply(mete_r2, FUN = test_quantile, FUN.VALUE = 1)
+mete_evar_quantile  <- vapply(mete_evar, FUN = test_quantile, FUN.VALUE = 1)
+mete_simp_quantile  <- vapply(mete_simp, FUN = test_quantile, FUN.VALUE = 1)
+mete_skew_quantile  <- vapply(mete_skew, FUN = test_quantile, FUN.VALUE = 1)
+
+
+toy_mete <- cbind(toy_mete, fs_r2_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile, mete_r2_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile)
+
+if(FALSE) {
+  write.csv(toy_mete, "toy_mete_done.csv")
+}
+
+```
+
+
+## 5. Compare quantiles across experimental treatments
+
+```{r fs plots, echo = F}
+
+library(ggplot2)
+
+
+for(i in 1:4) {
+
+  this_h <- levels(toy_mete$h)[i]
+  
+  this_data <- toy_mete %>%
+    dplyr::filter(h == this_h)
+  
+  r2_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = fs_r2_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$fs_r2_quantile)) +
+    ggtitle(paste0(this_h, " r2")) +
+    theme_bw()
+  
+  evar_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = fs_evar_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$fs_evar_quantile)) +
+    ggtitle(paste0(this_h, " evar")) +
+    theme_bw()
+  
+  simp_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = fs_simp_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$fs_simp_quantile)) +
+    ggtitle(paste0(this_h, " Simpson evenness")) +
+    theme_bw()
+  
+  skew_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = fs_skew_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$fs_skew_quantile)) +
+    ggtitle(paste0(this_h, " skewness")) +
+    theme_bw()
+  
+print(gridExtra::grid.arrange(r2_plot, evar_plot, simp_plot, skew_plot,
+                          nrow = 1))
+}
+
+
+```
+
+```{r mete plots}
+
+for(i in 1:4) {
+
+  this_h <- levels(toy_mete$h)[i]
+  
+  this_data <- toy_mete %>%
+    dplyr::filter(h == this_h)
+  
+  r2_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_r2_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_r2_quantile)) +
+    ggtitle(paste0(this_h, " r2")) +
+    theme_bw()
+  
+  evar_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_evar_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_evar_quantile)) +
+    ggtitle(paste0(this_h, " evar")) +
+    theme_bw()
+  
+  simp_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_simp_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_simp_quantile)) +
+    ggtitle(paste0(this_h, " Simpson evenness")) +
+    theme_bw()
+  
+  skew_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_skew_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_skew_quantile)) +
+    ggtitle(paste0(this_h, " skewness")) +
+    theme_bw()
+  
+print(gridExtra::grid.arrange(r2_plot, evar_plot, simp_plot, skew_plot,
+                          nrow = 1))
+}
+```

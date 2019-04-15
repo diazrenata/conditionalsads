@@ -190,4 +190,34 @@ print(gridExtra::grid.arrange(r2_plot, evar_plot, simp_plot, skew_plot,
 
 ```{r mete plots}
 
+for(i in 1:4) {
+
+  this_h <- levels(toy_fs$h)[i]
+  
+  this_data <- toy_fs %>%
+    dplyr::filter(h == this_h)
+  
+  r2_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_r2_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_r2_quantile)) +
+    ggtitle(paste0(this_h, " r2")) +
+    theme_bw()
+  
+  evar_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_evar_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_evar_quantile)) +
+    ggtitle(paste0(this_h, " evar")) +
+    theme_bw()
+  
+  simp_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_simp_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_simp_quantile)) +
+    ggtitle(paste0(this_h, " Simpson evenness")) +
+    theme_bw()
+  
+  skew_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_skew_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_skew_quantile)) +
+    ggtitle(paste0(this_h, " skewness")) +
+    theme_bw()
+  
+print(gridExtra::grid.arrange(r2_plot, evar_plot, simp_plot, skew_plot,
+                          nrow = 1))
+}
 ```
