@@ -115,3 +115,25 @@ test_quantile <- function(stats_list){
   focal_q <- sample_ecdf(focal_stat)
   return(focal_q)
 }
+
+
+#' @title Poilog parameters (From Supp et al 2013)
+#'
+#' @param x_vec rad
+#'
+#' @return exp(mu) and sig
+#' @export
+#'
+rad_poilog_cs = function(x_vec){
+  #to get back parameter values mu and sigma for RADs
+  par_mle = poilog::poilogMLE(x_vec, startVals = c(mu = mean(log(x_vec)),
+                                           sig = sd(log(x_vec))))$par
+  mu = as.numeric(par_mle)[1]
+  sig = as.numeric(par_mle)[2]
+  S = length(x_vec)
+  N = sum(x_vec)
+
+
+  parameters = list(exp(mu), sig)
+  return(parameters)
+}

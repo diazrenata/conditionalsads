@@ -4,7 +4,7 @@
 \alias{sample_feasibleset}
 \title{Draw from feasible set}
 \usage{
-sample_feasibleset(s, n, nsamples)
+sample_feasibleset(s, n, nsamples, inpar = FALSE)
 }
 \arguments{
 \item{s}{how many species}
@@ -12,6 +12,8 @@ sample_feasibleset(s, n, nsamples)
 \item{n}{how many individuals}
 
 \item{nsamples}{how many samples to draw}
+
+\item{inpar}{in parallel?}
 }
 \value{
 matrix of samples. rows are samples, columns are species

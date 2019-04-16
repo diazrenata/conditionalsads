@@ -4,7 +4,8 @@
 \alias{get_fs_ct}
 \title{Find central tendency of feasible set}
 \usage{
-get_fs_ct(s, n, nsamples)
+get_fs_ct(s, n, nsamples, newsamples = TRUE, oldsamples = NULL,
+  inpar = FALSE)
 }
 \arguments{
 \item{s}{how many species}
@@ -12,6 +13,12 @@ get_fs_ct(s, n, nsamples)
 \item{n}{how many individuals}
 
 \item{nsamples}{how many samples to use}
+
+\item{newsamples}{get new samples or use presampled ones}
+
+\item{oldsamples}{matrix of presamples}
+
+\item{inpar}{in parallel?}
 }
 \value{
 vector central tendency of feasible set
