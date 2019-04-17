@@ -17,7 +17,7 @@ plant_abund <- as.matrix(plant_abund)
 
 ## ----sample constraints--------------------------------------------------
 
-nsamples <- 100
+nsamples <- 2
 
 constraint_samples <- list()
 
