@@ -37,6 +37,9 @@ for(i in 1:nrow(plant_abund)) {
   rm(this_fs)
   #rm(this_mete)
   rm(these_constraint_samples)
+
+  print(i)
+  save(constraint_samples, file = 'constraint_samples.RData')
 }
 
 
