@@ -9,9 +9,9 @@
 #SBATCH --output plantsads%j.out
 #SBATCH --error plantsads%j.err
 
-#SBATCH --nodes=8
+#SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem=16gb   # Per processor memory
+#SBATCH --mem=2gb  # Per processor memory
 #SBATCH --cpus-per-task=16
 #SBATCH --time=48:00:00   # Walltime
 
