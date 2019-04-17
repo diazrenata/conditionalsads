@@ -1,15 +1,0 @@
-Tue Apr 16 21:22:48 EDT 2019
-c29a-s41.ufhpc
-/home/diaz.renata/conditionalsads
-[1] ".Rprofile loaded"
-
-     checking for file ‘/scratch/local/35166270/RtmpgnWW8h/remotes22bc3a655a4c/diazrenata-conditionalsads-1c4f71b/DESCRIPTION’ ...  ✔  checking for file ‘/scratch/local/35166270/RtmpgnWW8h/remotes22bc3a655a4c/diazrenata-conditionalsads-1c4f71b/DESCRIPTION’
-  ─  preparing ‘conditionalsads’:
-     checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
-  ─  checking for LF line-endings in source and make files and shell scripts
-  ─  checking for empty or unneeded directories
-   Removed empty directory ‘conditionalsads/analysis’
-  ─  building ‘conditionalsads_0.0.0.9000.tar.gz’
-     
-[1] ".Rprofile loaded"
-[1] ".Rprofile loaded"
