@@ -21,4 +21,4 @@ date;hostname; pwd
 #Use modules to load the environment for R
 module load R
 
-Rscript portal_plants_notebook.R
+Rscript portal_plants_notebook_short.R
