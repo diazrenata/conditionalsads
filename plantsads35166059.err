@@ -1,0 +1,26 @@
+Downloading GitHub repo diazrenata/feasiblesads@master
+Installing package into ‘/home/diaz.renata/R_libs’
+(as ‘lib’ is unspecified)
+* installing *source* package ‘feasiblesads’ ...
+** R
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded
+* DONE (feasiblesads)
+Downloading GitHub repo diazrenata/conditionalsads@master
+Installing package into ‘/home/diaz.renata/R_libs’
+(as ‘lib’ is unspecified)
+* installing *source* package ‘conditionalsads’ ...
+** R
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded
+* DONE (conditionalsads)
+Error in library(BiodiversityR) : 
+  there is no package called ‘BiodiversityR’
+Calls: process_portal_plants ... load_portal_plants -> source -> withVisible -> eval -> eval -> library
+Execution halted
