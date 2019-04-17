@@ -40,7 +40,7 @@ for(i in 1:nrow(plant_abund)) {
   rm(these_constraint_samples)
 
   print(i)
-  save(constraint_samples, file = 'constraint_samples.RData')
+  save(constraint_samples, file = 'constraint_samples_short.RData')
 }
 
 
