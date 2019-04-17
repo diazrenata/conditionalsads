@@ -12,7 +12,8 @@ library(conditionalsads)
 # rm(list = rm_list[ which(rm_list != "portal_plants")])
 # rm(rm_list)
 
-load('portal_plants.Rds')
+load('portal_plants_short.Rds')
+portal_plants <- portal_plants_short
 
 plant_abund <- portal_plants[[2]]
 plant_abund <- as.matrix(plant_abund)
