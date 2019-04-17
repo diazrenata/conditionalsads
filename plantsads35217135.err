@@ -1,0 +1,3 @@
+Error in kmax[s, n + 1] : subscript out of bounds
+Calls: get_stat_list ... get_fs_ct -> <Anonymous> -> <Anonymous> -> fill_ps -> p_over_k
+Execution halted
