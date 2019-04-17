@@ -28,14 +28,14 @@ for(i in 1:nrow(plant_abund)) {
   s = length(which(!is.na(plant_abund[i, ])))
   n = sum(plant_abund[i,], na.rm = T)
   this_fs <- sample_feasibleset(s = s, n = n, nsamples)
-  this_mete <- sample_METE(s = s, n= n, nsamples)
+  # this_mete <- sample_METE(s = s, n= n, nsamples)
 
-  these_constraint_samples <- list(this_fs, this_mete)
+  these_constraint_samples <- list(this_fs) #, this_mete)
 
   constraint_samples[[i]] <- these_constraint_samples
 
   rm(this_fs)
-  rm(this_mete)
+  #rm(this_mete)
   rm(these_constraint_samples)
 }
 
@@ -60,9 +60,9 @@ for(i in 1:nrow(plant_abund)) {
   fs_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
                               sampled_rads = constraint_samples[[i]][[1]],
                               stat = "r2", constraint = get_fs_ct(s, n, nsamples = nsamples))
-  mete_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
-                                sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "r2", constraint = get_mete_prediction(s, n))
+  # mete_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
+  #                               sampled_rads = constraint_samples[[i]][[1]],
+  #                               stat = "r2", constraint = get_mete_prediction(s, n))
 
   fs_evar[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
                                 sampled_rads = constraint_samples[[i]][[1]],
@@ -74,15 +74,15 @@ for(i in 1:nrow(plant_abund)) {
                                 sampled_rads = constraint_samples[[i]][[1]],
                                 stat = "rad_skew")
 
-  mete_evar[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
-                                sampled_rads = constraint_samples[[i]][[2]],
-                                stat = "evar")
-  mete_simp[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
-                                sampled_rads = constraint_samples[[i]][[2]],
-                                stat = "simpson")
-  mete_skew[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
-                                sampled_rads = constraint_samples[[i]][[2]],
-                                stat = "rad_skew")
+  # mete_evar[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
+  #                               sampled_rads = constraint_samples[[i]][[2]],
+  #                               stat = "evar")
+  # mete_simp[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
+  #                               sampled_rads = constraint_samples[[i]][[2]],
+  #                               stat = "simpson")
+  # mete_skew[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
+  #                               sampled_rads = constraint_samples[[i]][[2]],
+  #                               stat = "rad_skew")
 
 
   rm(s)
@@ -95,15 +95,15 @@ fs_r2_quantile <- vapply(fs_r2, FUN = test_quantile, FUN.VALUE = 1)
 fs_evar_quantile <- vapply(fs_evar, FUN = test_quantile, FUN.VALUE = 1)
 fs_simp_quantile <- vapply(fs_simp, FUN = test_quantile, FUN.VALUE = 1)
 fs_skew_quantile <- vapply(fs_skew, FUN = test_quantile, FUN.VALUE = 1)
+#
+#
+# mete_r2_quantile <- vapply(mete_r2, FUN = test_quantile, FUN.VALUE = 1)
+# mete_evar_quantile  <- vapply(mete_evar, FUN = test_quantile, FUN.VALUE = 1)
+# mete_simp_quantile  <- vapply(mete_simp, FUN = test_quantile, FUN.VALUE = 1)
+# mete_skew_quantile  <- vapply(mete_skew, FUN = test_quantile, FUN.VALUE = 1)
 
 
-mete_r2_quantile <- vapply(mete_r2, FUN = test_quantile, FUN.VALUE = 1)
-mete_evar_quantile  <- vapply(mete_evar, FUN = test_quantile, FUN.VALUE = 1)
-mete_simp_quantile  <- vapply(mete_simp, FUN = test_quantile, FUN.VALUE = 1)
-mete_skew_quantile  <- vapply(mete_skew, FUN = test_quantile, FUN.VALUE = 1)
-
-
-plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile, mete_r2_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile)
+plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile) # , mete_r2_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile)
 
   write.csv(plant_abund_results, "plants_done.csv")
 
