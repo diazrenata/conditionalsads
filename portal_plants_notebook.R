@@ -1,15 +1,18 @@
 ## ----setup---------------------------------------------------------------
-devtools::install_github('diazrenata/feasiblesads')
-devtools::install_github('diazrenata/conditionalsads')
+#devtools::install_github('diazrenata/feasiblesads')
+#devtools::install_github('diazrenata/conditionalsads')
 library(conditionalsads)
 
 ## ----generate Portal-----------------------------------------------------
 # setwd(here::here())
-portal_plants <- process_portal_plants(load_portal_plants(download = F))
+#portal_plants <- process_portal_plants(load_portal_plants(download = F))
 
-rm_list = ls()
-rm(list = rm_list[ which(rm_list != "portal_plants")])
-rm(rm_list)
+#
+# rm_list = ls()
+# rm(list = rm_list[ which(rm_list != "portal_plants")])
+# rm(rm_list)
+
+load('portal_plants.Rds')
 
 plant_abund <- portal_plants[[2]]
 plant_abund <- as.matrix(plant_abund)
