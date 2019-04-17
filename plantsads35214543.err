@@ -1,3 +1,0 @@
-Error in kmax[s, n + 1] : subscript out of bounds
-Calls: sample_feasibleset -> <Anonymous> -> fill_ps -> p_over_k
-Execution halted
