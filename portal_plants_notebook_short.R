@@ -13,11 +13,10 @@ library(conditionalsads)
 # rm(rm_list)
 
 load('portal_plants.Rds')
-#
-# ones <- which(rowSums(portal_plants[[2]], na.rm = T) == 1)
-#
-# portal_plants[[1]] <- portal_plants[[1]][-ones, ]
-# portal_plants[[2]] <- portal_plants[[2]][-ones, ]
+test_rows <- c(1, 145:nrow(portal_plants[[1]]))
+
+ portal_plants[[1]] <- portal_plants[[1]][test_rows, ]
+ portal_plants[[2]] <- portal_plants[[2]][test_rows, ]
 
 plant_abund <- portal_plants[[2]]
 plant_abund <- as.matrix(plant_abund)
@@ -44,7 +43,7 @@ for(i in 1:nrow(plant_abund)) {
   rm(these_constraint_samples)
 
   print(i)
-  save(constraint_samples, file = 'constraint_samples.RData')
+  save(constraint_samples, file = 'constraint_samples_debug.RData')
 }
 
 
@@ -113,8 +112,8 @@ fs_skew_quantile <- vapply(fs_skew, FUN = test_quantile, FUN.VALUE = 1)
 
 plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile) # , mete_r2_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile)
 
-  write.csv(plant_abund_results, "plants_done.csv")
+  write.csv(plant_abund_results, "plants_done_debug.csv")
 
-  save.image('plants_done.RData')
+  save.image('plants_done_debug.RData')
 
 
