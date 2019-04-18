@@ -14,8 +14,12 @@ library(conditionalsads)
 
 load('portal_plants.Rds')
 
-portal_plants[[1]] <- portal_plants[[1]][-148, ]
-portal_plants[[2]] <- portal_plants[[2]][-148, ]
+hist(rowSums(portal_plants[[2]], na.rm = T))
+
+highN <- which(rowSums(portal_plants[[2]], na.rm = T) > 2000)
+
+portal_plants[[1]] <- portal_plants[[1]][-highN, ]
+portal_plants[[2]] <- portal_plants[[2]][-highN, ]
 
 plant_abund <- portal_plants[[2]]
 plant_abund <- as.matrix(plant_abund)
@@ -23,7 +27,7 @@ plant_abund <- as.matrix(plant_abund)
 
 ## ----sample constraints--------------------------------------------------
 
-nsamples <- 50
+nsamples <- 1
 
 constraint_samples <- list()
 
@@ -42,7 +46,7 @@ for(i in 1:nrow(plant_abund)) {
   rm(these_constraint_samples)
 
   print(i)
-  save(constraint_samples, file = 'constraint_samples_no148.RData')
+  save(constraint_samples, file = 'constraint_samples_nohighN.RData')
 }
 
 
@@ -111,8 +115,8 @@ fs_skew_quantile <- vapply(fs_skew, FUN = test_quantile, FUN.VALUE = 1)
 
 plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile) # , mete_r2_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile)
 
-  write.csv(plant_abund_results, "plants_done_no148.csv")
+  write.csv(plant_abund_results, "plants_done_nohighN.csv")
 
-  save.image('plants_done_no148.RData')
+  save.image('plants_done_nohighN.RData')
 
 
