@@ -11,7 +11,7 @@ library(conditionalsads)
 # rm_list = ls()
 # rm(list = rm_list[ which(rm_list != "portal_plants")])
 # rm(rm_list)
-
+#
 load('portal_plants.Rds')
 test_rows <- c(1, 145:nrow(portal_plants[[1]]))
 
@@ -22,32 +22,32 @@ plant_abund <- portal_plants[[2]]
 plant_abund <- as.matrix(plant_abund)
 
 
-## ----sample constraints--------------------------------------------------
-
+# ## ----sample constraints--------------------------------------------------
+#
 nsamples <- 1
+#
+# constraint_samples <- list()
+#
+# for(i in 1:nrow(plant_abund)) {
+#   s = length(which(!is.na(plant_abund[i, ])))
+#   n = sum(plant_abund[i,], na.rm = T)
+#   this_fs <- sample_feasibleset(s = s, n = n, nsamples)
+#   # this_mete <- sample_METE(s = s, n= n, nsamples)
+#
+#   these_constraint_samples <- list(this_fs) #, this_mete)
+#
+#   constraint_samples[[i]] <- these_constraint_samples
+#
+#   rm(this_fs)
+#   #rm(this_mete)
+#   rm(these_constraint_samples)
+#
+#   print(i)
+#   save(constraint_samples, file = 'constraint_samples_debug.RData')
+# }
+#
 
-constraint_samples <- list()
-
-for(i in 1:nrow(plant_abund)) {
-  s = length(which(!is.na(plant_abund[i, ])))
-  n = sum(plant_abund[i,], na.rm = T)
-  this_fs <- sample_feasibleset(s = s, n = n, nsamples)
-  # this_mete <- sample_METE(s = s, n= n, nsamples)
-
-  these_constraint_samples <- list(this_fs) #, this_mete)
-
-  constraint_samples[[i]] <- these_constraint_samples
-
-  rm(this_fs)
-  #rm(this_mete)
-  rm(these_constraint_samples)
-
-  print(i)
-  save(constraint_samples, file = 'constraint_samples_debug.RData')
-}
-
-
-
+load('constraint_samples_debug.RData')
 ## ----R2------------------------------------------------------------------
 
 fs_r2 <- list()
@@ -62,8 +62,15 @@ mete_simp <- list()
 mete_skew <- list()
 
 for(i in 1:nrow(plant_abund)) {
-  s = length(which(!is.na(plant_abund[i])))
+  s = length(which(!is.na(plant_abund[i, ])))
   n = sum(plant_abund[i,], na.rm = T)
+
+  if(s == 1) {
+
+    next
+
+  }
+
   fs_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
                               sampled_rads = constraint_samples[[i]][[1]],
                               stat = "r2", constraint = get_fs_ct(s, n, nsamples = nsamples))
@@ -91,7 +98,7 @@ for(i in 1:nrow(plant_abund)) {
   #                               sampled_rads = constraint_samples[[i]][[2]],
   #                               stat = "rad_skew")
 
-
+print(i)
   rm(s)
   rm(n)
 }
