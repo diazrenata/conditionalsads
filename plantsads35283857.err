@@ -1,0 +1,3 @@
+Error in ecdf(sample_stats) : 'x' must have 1 or more non-missing values
+Calls: vapply -> FUN -> ecdf
+Execution halted
