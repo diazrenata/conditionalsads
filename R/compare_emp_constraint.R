@@ -109,6 +109,18 @@ get_stat_list <- function(empirical_rad, sampled_rads, stat = "r2",
 #' @export
 #'
 test_quantile <- function(stats_list){
+  if(is.null(stats_list)) {
+    return(NA)
+  }
+
+  if(is.nan(stats_list[[1]])) {
+    return(NA)
+  }
+
+  if(is.nan(stats_list[[2]])) {
+    return(NA)
+  }
+
   focal_stat = stats_list[[1]]
   sample_stats = stats_list[[2]]
   sample_ecdf <- ecdf(sample_stats)
