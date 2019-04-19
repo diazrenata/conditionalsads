@@ -173,8 +173,20 @@ for(i in 1:2) {
     ggtitle(paste0(this_season, " skewness")) +
     theme_bw()
   
+  
+    poilog_mu_plot <- ggplot(data = this_data, aes(x = trmt, y = poilog_expmu)) +
+    geom_jitter(aes(x = this_data$trmt, y = this_data$poilog_expmu)) +
+    ggtitle(paste0(this_season, " poilog_expmu")) +
+    theme_bw()
+  
+   poilog_sig_plot <- ggplot(data = this_data, aes(x = trmt, y = poilog_sig)) +
+    geom_jitter(aes(x = this_data$trmt, y = this_data$poilog_sig)) +
+    ggtitle(paste0(this_season, " poilog_sig")) +
+    theme_bw()
+  
 print(gridExtra::grid.arrange(r2_plot, evar_plot, simp_plot, skew_plot,
-                          nrow = 2))
+                              poilog_mu_plot, poilog_sig_plot,
+                          nrow = 3))
 }
 
 
