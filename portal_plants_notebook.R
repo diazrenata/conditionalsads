@@ -47,17 +47,19 @@ load('constraint_samples.RData')
 
 
 ## ----R2------------------------------------------------------------------
+#
+# fs_r2 <- list()
+# mete_r2 <- list()
+#
+# fs_evar <- list()
+# fs_simp <- list()
+# fs_skew <- list()
 
-fs_r2 <- list()
-mete_r2 <- list()
-
-fs_evar <- list()
-fs_simp <- list()
-fs_skew <- list()
-
-mete_evar <- list()
-mete_simp <- list()
-mete_skew <- list()
+poilogs <- list()
+#
+# mete_evar <- list()
+# mete_simp <- list()
+# mete_skew <- list()
 
 for(i in 1:nrow(plant_abund)) {
   s = length(which(!is.na(plant_abund[i, ])))
@@ -69,22 +71,22 @@ for(i in 1:nrow(plant_abund)) {
 
   }
 
-  fs_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
-                              sampled_rads = constraint_samples[[i]][[1]],
-                              stat = "r2", constraint = get_fs_ct(s, n, nsamples = nsamples))
+  # fs_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
+  #                             sampled_rads = constraint_samples[[i]][[1]],
+  #                             stat = "r2", constraint = get_fs_ct(s, n, nsamples = nsamples))
   # mete_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
   #                               sampled_rads = constraint_samples[[i]][[1]],
   #                               stat = "r2", constraint = get_mete_prediction(s, n))
 
-  fs_evar[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
-                                sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "evar")
-  fs_simp[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
-                                sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "simpson")
-  fs_skew[[i]] <-  get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
-                                 sampled_rads = constraint_samples[[i]][[1]],
-                                 stat = "rad_skew")
+  # fs_evar[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
+  #                               sampled_rads = constraint_samples[[i]][[1]],
+  #                               stat = "evar")
+  # fs_simp[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
+  #                               sampled_rads = constraint_samples[[i]][[1]],
+  #                               stat = "simpson")
+  # fs_skew[[i]] <-  get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
+  #                                sampled_rads = constraint_samples[[i]][[1]],
+  #                                stat = "rad_skew")
 
   # mete_evar[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
   #                               sampled_rads = constraint_samples[[i]][[2]],
@@ -96,6 +98,8 @@ for(i in 1:nrow(plant_abund)) {
   #                               sampled_rads = constraint_samples[[i]][[2]],
   #                               stat = "rad_skew")
 
+  poilogs[[i]] <- rad_poilog_cs(this_rad)
+
   print(i)
   rm(s)
   rm(n)
@@ -104,10 +108,10 @@ save.image('plants_stats_list.RData')
 
 
 ## ----get quantiles-------------------------------------------------------
-fs_r2_quantile <- vapply(fs_r2, FUN = test_quantile, FUN.VALUE = 1)
-fs_evar_quantile <- vapply(fs_evar, FUN = test_quantile, FUN.VALUE = 1)
-fs_simp_quantile <- vapply(fs_simp, FUN = test_quantile, FUN.VALUE = 1)
-fs_skew_quantile <- vapply(fs_skew, FUN = test_quantile, FUN.VALUE = 1)
+# fs_r2_quantile <- vapply(fs_r2, FUN = test_quantile, FUN.VALUE = 1)
+# fs_evar_quantile <- vapply(fs_evar, FUN = test_quantile, FUN.VALUE = 1)
+# fs_simp_quantile <- vapply(fs_simp, FUN = test_quantile, FUN.VALUE = 1)
+# fs_skew_quantile <- vapply(fs_skew, FUN = test_quantile, FUN.VALUE = 1)
 #
 #
 # mete_r2_quantile <- vapply(mete_r2, FUN = test_quantile, FUN.VALUE = 1)
@@ -116,7 +120,19 @@ fs_skew_quantile <- vapply(fs_skew, FUN = test_quantile, FUN.VALUE = 1)
 # mete_skew_quantile  <- vapply(mete_skew, FUN = test_quantile, FUN.VALUE = 1)
 
 
-plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile) # , mete_r2_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile)
+
+# Poilog pars
+
+pull_poilog <- function(pl_list, item) {
+  return(pl_list[[item]])
+}
+
+
+poilog_expmu <- vapply(poilogs, FUN = pull_poilog, FUN.VALUE = 1, item = 1)
+poilog_sig <- vapply(poilogs, FUN = pull_poilog, FUN.VALUE = 1, item = 2)
+
+
+plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile, poilog_expmu,poilog_sig) # , mete_r2_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile)
 
   write.csv(plant_abund_results, "plants_done.csv")
 
