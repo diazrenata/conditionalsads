@@ -20,9 +20,10 @@ plant_abund <- as.matrix(plant_abund)
 
 ## ----sample constraints--------------------------------------------------
 
-nsamples <- 50
+nsamples <- 100
 
 constraint_samples <- list()
+
 
 for(i in 1:nrow(plant_abund)) {
   s = length(which(!is.na(plant_abund[i, ])))
@@ -58,8 +59,15 @@ mete_simp <- list()
 mete_skew <- list()
 
 for(i in 1:nrow(plant_abund)) {
-  s = length(which(!is.na(plant_abund[i])))
+  s = length(which(!is.na(plant_abund[i, ])))
   n = sum(plant_abund[i,], na.rm = T)
+
+  if(s == 1) {
+
+    next
+
+  }
+
   fs_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
                               sampled_rads = constraint_samples[[i]][[1]],
                               stat = "r2", constraint = get_fs_ct(s, n, nsamples = nsamples))
@@ -74,8 +82,8 @@ for(i in 1:nrow(plant_abund)) {
                                 sampled_rads = constraint_samples[[i]][[1]],
                                 stat = "simpson")
   fs_skew[[i]] <-  get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
-                                sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "rad_skew")
+                                 sampled_rads = constraint_samples[[i]][[1]],
+                                 stat = "rad_skew")
 
   # mete_evar[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
   #                               sampled_rads = constraint_samples[[i]][[2]],
@@ -87,10 +95,11 @@ for(i in 1:nrow(plant_abund)) {
   #                               sampled_rads = constraint_samples[[i]][[2]],
   #                               stat = "rad_skew")
 
-
+  print(i)
   rm(s)
   rm(n)
 }
+save.image('plants_stats_list.RData')
 
 
 ## ----get quantiles-------------------------------------------------------

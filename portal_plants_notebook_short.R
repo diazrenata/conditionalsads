@@ -25,27 +25,27 @@ plant_abund <- as.matrix(plant_abund)
 # ## ----sample constraints--------------------------------------------------
 #
 nsamples <- 1
-#
-# constraint_samples <- list()
-#
-# for(i in 1:nrow(plant_abund)) {
-#   s = length(which(!is.na(plant_abund[i, ])))
-#   n = sum(plant_abund[i,], na.rm = T)
-#   this_fs <- sample_feasibleset(s = s, n = n, nsamples)
-#   # this_mete <- sample_METE(s = s, n= n, nsamples)
-#
-#   these_constraint_samples <- list(this_fs) #, this_mete)
-#
-#   constraint_samples[[i]] <- these_constraint_samples
-#
-#   rm(this_fs)
-#   #rm(this_mete)
-#   rm(these_constraint_samples)
-#
-#   print(i)
-#   save(constraint_samples, file = 'constraint_samples_debug.RData')
-# }
-#
+
+constraint_samples <- list()
+
+for(i in 1:nrow(plant_abund)) {
+  s = length(which(!is.na(plant_abund[i, ])))
+  n = sum(plant_abund[i,], na.rm = T)
+  this_fs <- sample_feasibleset(s = s, n = n, nsamples)
+  # this_mete <- sample_METE(s = s, n= n, nsamples)
+
+  these_constraint_samples <- list(this_fs) #, this_mete)
+
+  constraint_samples[[i]] <- these_constraint_samples
+
+  rm(this_fs)
+  #rm(this_mete)
+  rm(these_constraint_samples)
+
+  print(i)
+  save(constraint_samples, file = 'constraint_samples_debug.RData')
+}
+
 
 load('constraint_samples_debug.RData')
 ## ----R2------------------------------------------------------------------
