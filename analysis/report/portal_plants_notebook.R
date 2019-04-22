@@ -12,7 +12,7 @@ library(conditionalsads)
 # rm(list = rm_list[ which(rm_list != "portal_plants")])
 # rm(rm_list)
 
-load('portal_plants.Rds')
+load('analysis/report/portal_plants.Rds')
 
 plant_abund <- portal_plants[[2]]
 plant_abund <- as.matrix(plant_abund)
@@ -43,7 +43,7 @@ nsamples <- 100
 #   save(constraint_samples, file = 'constraint_samples.RData')
 # }
 #
-load('constraint_samples.RData')
+load('analysis/report/constraint_samples.RData')
 
 
 ## ----R2------------------------------------------------------------------
@@ -71,12 +71,16 @@ for(i in 1:nrow(plant_abund)) {
 
   }
 
+  fs_constraint = get_fs_ct(s, n, nsamples = nsamples)
+
+ # mete_constraint = get_mete_prediction(s, n)
+
   # fs_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
   #                             sampled_rads = constraint_samples[[i]][[1]],
-  #                             stat = "r2", constraint = get_fs_ct(s, n, nsamples = nsamples))
+  #                             stat = "r2", constraint = fs_constraint)
   # mete_r2[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
   #                               sampled_rads = constraint_samples[[i]][[1]],
-  #                               stat = "r2", constraint = get_mete_prediction(s, n))
+  #                               stat = "r2", constraint = mete_constraint)
 
   # fs_evar[[i]] <- get_stat_list(empirical_rad = as.integer(plant_abund[i, 1:s]),
   #                               sampled_rads = constraint_samples[[i]][[1]],
@@ -98,13 +102,16 @@ for(i in 1:nrow(plant_abund)) {
   #                               sampled_rads = constraint_samples[[i]][[2]],
   #                               stat = "rad_skew")
 
-  poilogs[[i]] <- rad_poilog_cs(this_rad)
-
+if (sd(as.integer(plant_abund[i, 1:s])) == 0) {
+  poilogs[[i]] <- list(NA, NA)
+} else {
+  poilogs[[i]] <- rad_poilog_cs(as.integer(plant_abund[i, 1:s]))
+}
   print(i)
   rm(s)
   rm(n)
 }
-save.image('plants_stats_list.RData')
+save.image('analysis/report/plants_stats_list.RData')
 
 
 ## ----get quantiles-------------------------------------------------------
@@ -124,6 +131,9 @@ save.image('plants_stats_list.RData')
 # Poilog pars
 
 pull_poilog <- function(pl_list, item) {
+  if(is.null(pl_list)) {
+    return(NA)
+    }
   return(pl_list[[item]])
 }
 
@@ -134,8 +144,8 @@ poilog_sig <- vapply(poilogs, FUN = pull_poilog, FUN.VALUE = 1, item = 2)
 
 plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile, poilog_expmu,poilog_sig) # , mete_r2_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile)
 
-  write.csv(plant_abund_results, "plants_done.csv")
+  write.csv(plant_abund_results, "analysis/report/plants_done.csv")
 
-  save.image('plants_done.RData')
+  save.image('analysis/report/plants_done.RData')
 
 

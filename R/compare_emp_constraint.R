@@ -16,6 +16,24 @@ r2 <- function(focal_rad, compare_rad) {
   return(r2)
 }
 
+#' @title Calculate a single K-L divergence
+#'
+#' @param focal_rad ascending RAD ("empirical")
+#' @param compare_rad ascending RAD from samples
+#'
+#' @return K-L div
+#' @export
+#'
+kl_div <- function(focal_rad, compare_rad) {
+
+  px = ecdf(focal_rad)
+  py = ecdf(compare_rad)
+
+  kl = LaplacesDemon::KLD(px, py)$KLD.px.py
+
+  return(kl)
+}
+
 #' @title Calculate Evar
 #'
 #' @param focal_rad ascending RAD
