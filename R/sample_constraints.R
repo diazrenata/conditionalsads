@@ -47,6 +47,14 @@ get_fs_ct <- function(s, n, nsamples, newsamples = TRUE, oldsamples = NULL, inpa
 #' @export
 sample_METE <- function(s, n, nsamples){
 
+
+  if(n <=  s) {
+    if(n==s) {
+      return(rep(1, s))
+    } else {
+      return(NULL)
+    }
+  }
   this_esf <- meteR::meteESF(S0 = s, N0 = n)
   this_sad <- meteR::sad(this_esf)
 

@@ -23,7 +23,7 @@ nsamples <- 2
 
 constraint_samples <- list()
 
-for(i in 1:nrow(plant_abund)) {
+for(i in 74:nrow(plant_abund)) {
   s = length(which(!is.na(plant_abund[i, ])))
   n = sum(plant_abund[i,], na.rm = T)
   this_fs <- sample_feasibleset(s = s, n = n, nsamples)
