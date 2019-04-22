@@ -3,14 +3,18 @@ library(conditionalsads)
 
 ## ----generate Portal, eval =T--------------------------------------------
 setwd(here::here())
-portal_plants <- process_portal_plants(load_portal_plants(download = F))
+# portal_plants <- process_portal_plants(load_portal_plants(download = F))
+#
+# rm_list = ls()
+# rm(list = rm_list[ which(rm_list != "portal_plants")])
+# rm(rm_list)
+#
+# plant_abund <- portal_plants[[2]]
+# plant_abund <- as.matrix(plant_abund)
+#
+# save.image('plant_data.RData')
 
-rm_list = ls()
-rm(list = rm_list[ which(rm_list != "portal_plants")])
-rm(rm_list)
-
-plant_abund <- portal_plants[[2]]
-plant_abund <- as.matrix(plant_abund)
+load('plant_data.RData')
 
 
 ## ----sample constraints, eval = T----------------------------------------
@@ -24,9 +28,9 @@ for(i in 1:nrow(plant_abund)) {
   n = sum(plant_abund[i,], na.rm = T)
   this_fs <- sample_feasibleset(s = s, n = n, nsamples)
   this_mete <- sample_METE(s = s, n= n, nsamples)
-  
+
   these_constraint_samples <- list(this_fs, this_mete)
-  
+
   constraint_samples[[i]] <- these_constraint_samples
   print(i)
   rm(this_fs)
@@ -40,28 +44,28 @@ for(i in 1:nrow(plant_abund)) {
 ## ----R2, eval =T---------------------------------------------------------
 
 for(i in 1:nrow(plant_abund)) {
-  
+
  this_rad = as.integer(plant_abund[i, ])
   this_rad = na.omit(this_rad)
   s = length(this_rad)
   n = sum(this_rad)
-  
+
   fs_constraint = get_fs_ct(s, n, nsamples = nsamples, newsamples = F, oldsamples = constraint_samples[[i]][[1]])
   mete_constraint  = get_mete_prediction(s, n)
-  
+
   fs_r2[[i]] <- get_stat_list(empirical_rad = this_rad,
                               sampled_rads = constraint_samples[[i]][[1]],
                               stat = "r2", constraint = fs_constraint)
   fs_kl[[i]] <- get_stat_list(empirical_rad = this_rad,
                               sampled_rads = constraint_samples[[i]][[1]],
                               stat = "kl_div", constraint = fs_constraint)
-  
-  
+
+
   mete_r2[[i]] <- get_stat_list(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[1]],
                                 stat = "r2", constraint = mete_constraint)
-  
-  
+
+
   mete_kl[[i]] <- get_stat_list(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[1]],
                                 stat = "kl_div", constraint = mete_constraint)
@@ -75,7 +79,7 @@ for(i in 1:nrow(plant_abund)) {
   fs_skew[[i]] <-  get_stat_list(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[1]],
                                 stat = "rad_skew")
-  
+
   mete_evar[[i]] <- get_stat_list(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[2]],
                                 stat = "evar")
@@ -85,11 +89,11 @@ for(i in 1:nrow(plant_abund)) {
   mete_skew[[i]] <- get_stat_list(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[2]],
                                 stat = "rad_skew")
-  
+
   poilogs[[i]] <- rad_poilog_cs(this_rad)
   print(i)
   save.image('getting_stats.RData')
-  
+
   rm(s)
   rm(n)
 }
@@ -137,46 +141,46 @@ library(ggplot2)
 for(i in 1:2) {
 
   this_season <- unique(plant_abund_results$season)[i]
-  
+
   this_data <- plant_abund_results %>%
     dplyr::filter(season == this_season)
-  
+
   r2_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_r2_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_r2_quantile)) +
     ggtitle(paste0(this_season, " r2")) +
     theme_bw()
-  
+
   kl_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_kl_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_kl_quantile)) +
     ggtitle(paste0(this_season, " kl")) +
     theme_bw()
-  
+
   evar_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_evar_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_evar_quantile)) +
     ggtitle(paste0(this_season, " evar")) +
     theme_bw()
-  
+
   simp_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_simp_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_simp_quantile)) +
     ggtitle(paste0(this_season, " Simpson evenness")) +
     theme_bw()
-  
+
   skew_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_skew_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_skew_quantile)) +
     ggtitle(paste0(this_season, " skewness")) +
     theme_bw()
-  
-  
+
+
     poilog_mu_plot <- ggplot(data = this_data, aes(x = trmt, y = poilog_expmu)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$poilog_expmu)) +
     ggtitle(paste0(this_season, " poilog_expmu")) +
     theme_bw()
-  
+
    poilog_sig_plot <- ggplot(data = this_data, aes(x = trmt, y = poilog_sig)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$poilog_sig)) +
     ggtitle(paste0(this_season, " poilog_sig")) +
     theme_bw()
-  
+
 print(gridExtra::grid.arrange(r2_plot, kl_plot, evar_plot, simp_plot, skew_plot,
                               poilog_mu_plot, poilog_sig_plot,
                           nrow = 4))
