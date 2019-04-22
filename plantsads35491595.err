@@ -1,0 +1,4 @@
+Error in library(BiodiversityR) : 
+  there is no package called ‘BiodiversityR’
+Calls: process_portal_plants ... load_portal_plants -> source -> withVisible -> eval -> eval -> library
+Execution halted
