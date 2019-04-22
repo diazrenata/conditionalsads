@@ -1,20 +1,7 @@
----
-title: "R Notebook"
-output:
-  html_document:
-    df_print: paged
-  html_notebook:
-    df_print: paged 
----
-
-```{r setup}
+## ----setup---------------------------------------------------------------
 library(conditionalsads)
-```
 
-This analysis will also source functions from `meteR` and `feasiblesads`. 
-
-## 1. Load data
-```{r generate Portal, eval =T}
+## ----generate Portal, eval =T--------------------------------------------
 setwd(here::here())
 portal_plants <- process_portal_plants(load_portal_plants(download = F))
 
@@ -25,16 +12,8 @@ rm(rm_list)
 plant_abund <- portal_plants[[2]]
 plant_abund <- as.matrix(plant_abund)
 
-```
 
-## 2. Generate samples from constraints
-
-For each sample, generate `nsamples` samples from the feasible set and from the METE distribution. 
-
-**These will be the sample_sads for comparison.**
-
-
-```{r sample constraints, eval = T}
+## ----sample constraints, eval = T----------------------------------------
 
 nsamples <- 2
 
@@ -57,15 +36,8 @@ for(i in 1:nrow(plant_abund)) {
 }
 
 
-```
 
-
-## 3. Calculate test statistics 
-
-* Empirical R2 and sample R2 compared to most-likely constraint vector.
-* Empirical and sample evenness (Evar and Simpson's) and skew.
-
-```{r R2, eval =T}
+## ----R2, eval =T---------------------------------------------------------
 
 for(i in 1:nrow(plant_abund)) {
   
@@ -123,12 +95,8 @@ for(i in 1:nrow(plant_abund)) {
 }
 
 
-```
 
-
-## 4. Get quantiles of empirical test statistics vs. constraints
-
-```{r get quantiles, eval = T}
+## ----get quantiles, eval = T---------------------------------------------
 fs_r2_quantile <- vapply(fs_r2, FUN = test_quantile, FUN.VALUE = 1)
 fs_kl_quantile <- vapply(fs_kl, FUN = test_quantile, FUN.VALUE =1)
 fs_evar_quantile <- vapply(fs_evar, FUN = test_quantile, FUN.VALUE = 1)
@@ -160,12 +128,8 @@ plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile,fs_
   save.image('plants_2samples.RData')
 #}
 
-```
 
-
-## 5. Compare quantiles across experimental treatments
-
-```{r fs plots, echo = F}
+## ----fs plots, echo = F--------------------------------------------------
 # load('plants_done.RData')
 library(ggplot2)
 
@@ -219,4 +183,4 @@ print(gridExtra::grid.arrange(r2_plot, kl_plot, evar_plot, simp_plot, skew_plot,
 }
 
 
-```
+
