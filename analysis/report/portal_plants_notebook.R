@@ -23,87 +23,87 @@ nsamples <- 2
 
 constraint_samples <- list()
 
-for(i in 1:nrow(plant_abund)) {
-  s = length(which(!is.na(plant_abund[i, ])))
-  n = sum(plant_abund[i,], na.rm = T)
+constraint_samples <- apply(plant_abund, MARGIN = 1, FUN = sample_plant_constraints, nsamples = nsamples, fs= T)
 
- this_fs <- sample_feasibleset(s = s, n = n, nsamples)
-
-  if(i ==  215) {
-    # meteR throws an unknown error that goes away if you change n slightly
-    n = 2445
-  }
-  if(i ==230){
-    n = 875
-  }
-  if(i == 232){
-    n = 2080
-  }
-
-  this_mete <- sample_METE(s = s, n= n, nsamples)
-
- these_constraint_samples <- list(this_fs, this_mete)
-
- constraint_samples[[i]] <- these_constraint_samples
-  print(i)
- rm(this_fs)
- rm(this_mete)
- rm(these_constraint_samples)
- save.image('sampling_constraints.RData')
-}
+save.image('sampling_constraints.RData')
 
 
 
 ## ----R2, eval =T---------------------------------------------------------
 
+
+fs_r2 <- list()
+fs_kl <- list()
+fs_evar <- list()
+fs_simp <- list()
+fs_skew <- list()
+mete_r2 <- list()
+mete_kl <- list()
+mete_evar <- list()
+mete_simp <- list()
+mete_skew <- list()
+poilogs <- list()
+
 for(i in 1:nrow(plant_abund)) {
 
- this_rad = as.integer(plant_abund[i, ])
+  this_rad = as.integer(plant_abund[i, ])
   this_rad = na.omit(this_rad)
   s = length(this_rad)
   n = sum(this_rad)
 
-  fs_constraint = get_fs_ct(s, n, nsamples = nsamples, newsamples = F, oldsamples = constraint_samples[[i]][[1]])
-  mete_constraint  = get_mete_prediction(s, n)
 
-  fs_r2[[i]] <- get_stat_list(empirical_rad = this_rad,
-                              sampled_rads = constraint_samples[[i]][[1]],
-                              stat = "r2", constraint = fs_constraint)
-  fs_kl[[i]] <- get_stat_list(empirical_rad = this_rad,
-                              sampled_rads = constraint_samples[[i]][[1]],
-                              stat = "kl_div", constraint = fs_constraint)
+  if(!is.null(constraint_samples[[i]][[1]])) {
+    fs_constraint = get_fs_ct(s, n, nsamples = nsamples, newsamples = F, oldsamples = constraint_samples[[i]][[1]])
 
-
-  mete_r2[[i]] <- get_stat_list(empirical_rad = this_rad,
+    fs_r2[[i]] <- get_stat_list(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "r2", constraint = mete_constraint)
-
-
-  mete_kl[[i]] <- get_stat_list(empirical_rad = this_rad,
+                                stat = "r2", constraint = fs_constraint)
+    fs_kl[[i]] <- get_stat_list(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "kl_div", constraint = mete_constraint)
+                                stat = "kl_div", constraint = fs_constraint)
+    fs_evar[[i]] <- get_stat_list(empirical_rad = this_rad,
+                                  sampled_rads = constraint_samples[[i]][[1]],
+                                  stat = "evar")
+    fs_simp[[i]] <- get_stat_list(empirical_rad = this_rad,
+                                  sampled_rads = constraint_samples[[i]][[1]],
+                                  stat = "simpson")
+    fs_skew[[i]] <-  get_stat_list(empirical_rad = this_rad,
+                                   sampled_rads = constraint_samples[[i]][[1]],
+                                   stat = "rad_skew")
 
-  fs_evar[[i]] <- get_stat_list(empirical_rad = this_rad,
-                                sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "evar")
-  fs_simp[[i]] <- get_stat_list(empirical_rad = this_rad,
-                                sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "simpson")
-  fs_skew[[i]] <-  get_stat_list(empirical_rad = this_rad,
-                                sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "rad_skew")
+  }
 
-  mete_evar[[i]] <- get_stat_list(empirical_rad = this_rad,
-                                sampled_rads = constraint_samples[[i]][[2]],
-                                stat = "evar")
-  mete_simp[[i]] <- get_stat_list(empirical_rad = this_rad,
-                                sampled_rads = constraint_samples[[i]][[2]],
-                                stat = "simpson")
-  mete_skew[[i]] <- get_stat_list(empirical_rad = this_rad,
-                                sampled_rads = constraint_samples[[i]][[2]],
-                                stat = "rad_skew")
+  if(!(constraint_samples[[i]][[2]][1] == 'METE error')) {
+    possibly_get_mete <- purrr::possibly(get_mete_prediction, otherwise = NULL)
+    mete_constraint  = possibly_get_mete(s, n)
 
-  poilogs[[i]] <- rad_poilog_cs(this_rad)
+    if(!is.null(mete_constraint)) {
+      mete_r2[[i]] <- get_stat_list(empirical_rad = this_rad,
+                                    sampled_rads = constraint_samples[[i]][[2]],
+                                    stat = "r2", constraint = mete_constraint)
+
+
+      mete_kl[[i]] <- get_stat_list(empirical_rad = this_rad,
+                                    sampled_rads = constraint_samples[[i]][[2]],
+                                    stat = "kl_div", constraint = mete_constraint)
+    }
+
+
+    mete_evar[[i]] <- get_stat_list(empirical_rad = this_rad,
+                                    sampled_rads = constraint_samples[[i]][[2]],
+                                    stat = "evar")
+
+    mete_simp[[i]] <- get_stat_list(empirical_rad = this_rad,
+                                    sampled_rads = constraint_samples[[i]][[2]],
+                                    stat = "simpson")
+    mete_skew[[i]] <- get_stat_list(empirical_rad = this_rad,
+                                    sampled_rads = constraint_samples[[i]][[2]],
+                                    stat = "rad_skew")
+  }
+
+  possibly_poilogs <- purrr::possibly(rad_poilog_cs, otherwise = NULL)
+
+  poilogs[[i]] <- possibly_poilogs(this_rad)
   print(i)
   save.image('getting_stats.RData')
 
@@ -131,18 +131,25 @@ mete_skew_quantile  <- vapply(mete_skew, FUN = test_quantile, FUN.VALUE = 1)
 # Poilog pars
 
 pull_poilog <- function(pl_list, item) {
+  if(is.null(pl_list)) {
+    return(NA)
+  }
   return(pl_list[[item]])
 }
+
+# possibly_pull_poilog <- purrr::possibly(pull_poilog, otherwise = 100)
 
 poilog_expmu <- vapply(poilogs, FUN = pull_poilog, FUN.VALUE = 1, item = 1)
 poilog_sig <- vapply(poilogs, FUN = pull_poilog, FUN.VALUE = 1, item = 2)
 
+save.image('stats_done.RData')
+
 plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile,fs_kl_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile, mete_r2_quantile, mete_kl_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile, poilog_expmu,
-                poilog_sig)
+                             poilog_sig)
 
 #if(FALSE) {
-  write.csv(plant_abund_results, "plants_2samples_done.csv")
-  save.image('plants_2samples.RData')
+write.csv(plant_abund_results, "plants_2samples_done.csv")
+save.image('plants_2samples.RData')
 #}
 
 

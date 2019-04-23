@@ -18,4 +18,5 @@ Imports:
     meteR,
     feasiblesads,
     entropy,
-    vegan
+    vegan,
+    purrr

@@ -46,25 +46,27 @@ get_fs_ct <- function(s, n, nsamples, newsamples = TRUE, oldsamples = NULL, inpa
 #' @return matrix of samples. rows are samples, columns are species
 #' @export
 sample_METE <- function(s, n, nsamples){
+  sims <- matrix(nrow = nsamples, ncol = s)
 
   if(s==1) {
-    return(n)
-  }
-
-
-  if(n <=  s) {
-    if(n==s) {
-      return(rep(1, s))
-    } else {
-      return(NULL)
+    for(i in 1:nsamples) {
+      sims[i,1] <- n
     }
   }
+
+
+    if(n==s) {
+      for(i in 1:nsamples) {
+        for(j in 1:s) {
+        sims[i,j] <- 1
+      }
+      }
+    }
   this_esf <- meteR::meteESF(S0 = s, N0 = n)
   this_sad <- meteR::sad(this_esf)
 
   state.var <- n
 
-  sims <- matrix(nrow = nsamples, ncol = s)
 
   for(i in 1:nsamples) {
     while(is.na(sims[i, 1])) {
@@ -89,4 +91,38 @@ get_mete_prediction <- function(s, n){
   mete_prediction = sort(meteR::meteDist2Rank(meteR::sad(meteR::meteESF(S0 = s, N0 = n))))
   return(mete_prediction)
 }
+
+#' Sample plant constraints
+#'
+#' @param plant_abund_row an RAD, NAs ok
+#' @param nsamples how many samples
+#' @param fs sample from fs?
+#' @param mete sample from mete?
+#'
+#' @return list of samples
+#' @export
+#'
+sample_plant_constraints <- function(plant_abund_row, nsamples, fs = TRUE, mete = TRUE) {
+
+  s = length(which(!is.na(plant_abund_row)))
+  n = sum(plant_abund_row, na.rm = T)
+  this_mete <- NULL
+  this_fs <- NULL
+
+  if(fs) {
+  this_fs <- sample_feasibleset(s = s, n = n, nsamples)
+  }
+
+  if(mete){
+
+    possibly_sample_mete <- purrr::possibly(sample_METE, otherwise = 'METE error')
+
+  this_mete <- possibly_sample_mete(s = s, n= n, nsamples)
+  }
+
+  these_constraint_samples <- list(this_fs, this_mete)
+
+  return(these_constraint_samples)
+}
+
 
