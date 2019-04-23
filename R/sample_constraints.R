@@ -47,6 +47,10 @@ get_fs_ct <- function(s, n, nsamples, newsamples = TRUE, oldsamples = NULL, inpa
 #' @export
 sample_METE <- function(s, n, nsamples){
 
+  if(s==1) {
+    return(n)
+  }
+
 
   if(n <=  s) {
     if(n==s) {

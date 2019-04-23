@@ -23,20 +23,33 @@ nsamples <- 2
 
 constraint_samples <- list()
 
-for(i in 74:nrow(plant_abund)) {
+for(i in 1:nrow(plant_abund)) {
   s = length(which(!is.na(plant_abund[i, ])))
   n = sum(plant_abund[i,], na.rm = T)
-  this_fs <- sample_feasibleset(s = s, n = n, nsamples)
+
+ this_fs <- sample_feasibleset(s = s, n = n, nsamples)
+
+  if(i ==  215) {
+    # meteR throws an unknown error that goes away if you change n slightly
+    n = 2445
+  }
+  if(i ==230){
+    n = 875
+  }
+  if(i == 232){
+    n = 2080
+  }
+
   this_mete <- sample_METE(s = s, n= n, nsamples)
 
-  these_constraint_samples <- list(this_fs, this_mete)
+ these_constraint_samples <- list(this_fs, this_mete)
 
-  constraint_samples[[i]] <- these_constraint_samples
+ constraint_samples[[i]] <- these_constraint_samples
   print(i)
-  rm(this_fs)
-  rm(this_mete)
-  rm(these_constraint_samples)
-  save.image('sampling_constraints.RData')
+ rm(this_fs)
+ rm(this_mete)
+ rm(these_constraint_samples)
+ save.image('sampling_constraints.RData')
 }
 
 
@@ -135,56 +148,56 @@ plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile,fs_
 
 ## ----fs plots, echo = F--------------------------------------------------
 # load('plants_done.RData')
-library(ggplot2)
-
-
-for(i in 1:2) {
-
-  this_season <- unique(plant_abund_results$season)[i]
-
-  this_data <- plant_abund_results %>%
-    dplyr::filter(season == this_season)
-
-  r2_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_r2_quantile)) +
-    geom_jitter(aes(x = this_data$trmt, y = this_data$fs_r2_quantile)) +
-    ggtitle(paste0(this_season, " r2")) +
-    theme_bw()
-
-  kl_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_kl_quantile)) +
-    geom_jitter(aes(x = this_data$trmt, y = this_data$fs_kl_quantile)) +
-    ggtitle(paste0(this_season, " kl")) +
-    theme_bw()
-
-  evar_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_evar_quantile)) +
-    geom_jitter(aes(x = this_data$trmt, y = this_data$fs_evar_quantile)) +
-    ggtitle(paste0(this_season, " evar")) +
-    theme_bw()
-
-  simp_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_simp_quantile)) +
-    geom_jitter(aes(x = this_data$trmt, y = this_data$fs_simp_quantile)) +
-    ggtitle(paste0(this_season, " Simpson evenness")) +
-    theme_bw()
-
-  skew_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_skew_quantile)) +
-    geom_jitter(aes(x = this_data$trmt, y = this_data$fs_skew_quantile)) +
-    ggtitle(paste0(this_season, " skewness")) +
-    theme_bw()
-
-
-    poilog_mu_plot <- ggplot(data = this_data, aes(x = trmt, y = poilog_expmu)) +
-    geom_jitter(aes(x = this_data$trmt, y = this_data$poilog_expmu)) +
-    ggtitle(paste0(this_season, " poilog_expmu")) +
-    theme_bw()
-
-   poilog_sig_plot <- ggplot(data = this_data, aes(x = trmt, y = poilog_sig)) +
-    geom_jitter(aes(x = this_data$trmt, y = this_data$poilog_sig)) +
-    ggtitle(paste0(this_season, " poilog_sig")) +
-    theme_bw()
-
-print(gridExtra::grid.arrange(r2_plot, kl_plot, evar_plot, simp_plot, skew_plot,
-                              poilog_mu_plot, poilog_sig_plot,
-                          nrow = 4))
-}
+# library(ggplot2)
+#
+#
+# for(i in 1:2) {
+#
+#   this_season <- unique(plant_abund_results$season)[i]
+#
+#   this_data <- plant_abund_results %>%
+#     dplyr::filter(season == this_season)
+#
+#   r2_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_r2_quantile)) +
+#     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_r2_quantile)) +
+#     ggtitle(paste0(this_season, " r2")) +
+#     theme_bw()
+#
+#   kl_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_kl_quantile)) +
+#     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_kl_quantile)) +
+#     ggtitle(paste0(this_season, " kl")) +
+#     theme_bw()
+#
+#   evar_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_evar_quantile)) +
+#     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_evar_quantile)) +
+#     ggtitle(paste0(this_season, " evar")) +
+#     theme_bw()
+#
+#   simp_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_simp_quantile)) +
+#     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_simp_quantile)) +
+#     ggtitle(paste0(this_season, " Simpson evenness")) +
+#     theme_bw()
+#
+#   skew_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_skew_quantile)) +
+#     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_skew_quantile)) +
+#     ggtitle(paste0(this_season, " skewness")) +
+#     theme_bw()
+#
+#
+#     poilog_mu_plot <- ggplot(data = this_data, aes(x = trmt, y = poilog_expmu)) +
+#     geom_jitter(aes(x = this_data$trmt, y = this_data$poilog_expmu)) +
+#     ggtitle(paste0(this_season, " poilog_expmu")) +
+#     theme_bw()
+#
+#    poilog_sig_plot <- ggplot(data = this_data, aes(x = trmt, y = poilog_sig)) +
+#     geom_jitter(aes(x = this_data$trmt, y = this_data$poilog_sig)) +
+#     ggtitle(paste0(this_season, " poilog_sig")) +
+#     theme_bw()
+#
+# print(gridExtra::grid.arrange(r2_plot, kl_plot, evar_plot, simp_plot, skew_plot,
+#                               poilog_mu_plot, poilog_sig_plot,
+#                           nrow = 4))
+# }
 
 
 
