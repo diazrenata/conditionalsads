@@ -25,7 +25,7 @@ constraint_samples <- list()
 
 constraint_samples <- apply(plant_abund, MARGIN = 1, FUN = sample_plant_constraints, nsamples = nsamples, fs= T)
 
-save.image('sampling_constraints.RData')
+save.image('sampling_constraints_n2.RData')
 
 
 
@@ -105,7 +105,7 @@ for(i in 1:nrow(plant_abund)) {
 
   poilogs[[i]] <- possibly_poilogs(this_rad)
   print(i)
-  save.image('getting_stats.RData')
+  save.image('getting_stats_s2.RData')
 
   rm(s)
   rm(n)
@@ -142,14 +142,14 @@ pull_poilog <- function(pl_list, item) {
 poilog_expmu <- vapply(poilogs, FUN = pull_poilog, FUN.VALUE = 1, item = 1)
 poilog_sig <- vapply(poilogs, FUN = pull_poilog, FUN.VALUE = 1, item = 2)
 
-save.image('stats_done.RData')
+save.image('stats_done_s2.RData')
 
 plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile,fs_kl_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile, mete_r2_quantile, mete_kl_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile, poilog_expmu,
                              poilog_sig)
 
 #if(FALSE) {
-write.csv(plant_abund_results, "plants_2samples_done.csv")
-save.image('plants_2samples.RData')
+write.csv(plant_abund_results, "plants_2samples_done_s2.csv")
+save.image('plants_2samples_s2.RData')
 #}
 
 
