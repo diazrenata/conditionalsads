@@ -27,6 +27,12 @@ for(i in 1:nrow(plant_abund)) {
   n = sum(this_rad)
 
 
+  if(s == 1) {
+    if(n==1) {
+      fs_kl[[i]] <- NULL
+      next
+    }
+    }
   if(!is.null(constraint_samples[[i]][[1]])) {
     fs_constraint = get_fs_ct(s, n, nsamples = nsamples, newsamples = F, oldsamples = constraint_samples[[i]][[1]])
 
