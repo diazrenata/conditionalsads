@@ -37,7 +37,9 @@ for(i in 1:nrow(plant_abund)) {
     fs_constraint = get_fs_ct(s, n, nsamples = nsamples, newsamples = F, oldsamples = constraint_samples[[i]][[1]])
 
 
-    fs_kl[[i]] <- get_stat_list(empirical_rad = this_rad,
+    possiblystats = purrr::possibly(get_stat_list, otherwise = NULL)
+
+    fs_kl[[i]] <- possiblystats(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[1]],
                                 stat = "kl_div", constraint = fs_constraint)
 
