@@ -12,9 +12,9 @@ get_stat_list(empirical_rad, sampled_rads, stat = "r2",
 
 \item{sampled_rads}{matrix RAD for sampled communities}
 
-\item{stat}{character "r2", "evar", "simpson", "rad_skew"}
+\item{stat}{character "r2", "evar", "simpson", "rad_skew", "kl_div"}
 
-\item{constraint}{if stat = r2, vector comparison RAD (central tendency of feasible set, or METE prediction)}
+\item{constraint}{if stat = r2 or kl_div, vector comparison RAD (central tendency of feasible set, or METE prediction)}
 }
 \value{
 list of empirical test stat, sampled test stats

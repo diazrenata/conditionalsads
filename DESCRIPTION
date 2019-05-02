@@ -17,5 +17,6 @@ Imports:
     magrittr,
     meteR,
     feasiblesads,
-    e1071,
-    vegan
+    entropy,
+    vegan,
+    purrr

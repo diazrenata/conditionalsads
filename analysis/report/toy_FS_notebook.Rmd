@@ -1,11 +1,10 @@
 ---
 title: "R Notebook"
 output:
-    html_notebook:
-      df_print: paged
     html_document:
       df_print: paged
-
+    html_notebook:
+      df_print: paged
 ---
 
 ```{r setup}
@@ -30,7 +29,7 @@ Within each scenario there are `nsamples` communities in each treatment group. T
 
 ```{r generate toy data}
 
-toy_fs = make_toy_data(constraint = "FS", nsamples = 20, ctrl_s = 5, ctrl_n = 100)
+toy_fs = make_toy_data(constraint = "FS", nsamples = 5, ctrl_s = 5, ctrl_n = 100)
 str(toy_fs)
 head(toy_fs)
 
@@ -45,7 +44,7 @@ For each sample, generate `nsamples` samples from the feasible set and from the 
 
 ```{r sample constraints}
 
-nsamples <- 500
+nsamples <- 10
 
 
 get_both_samples <- function(this_vect, nsamples, inpar = FALSE){
@@ -79,7 +78,9 @@ constraint_samples <- apply(toy_fs, MARGIN = 1, FUN = get_both_samples,
 
 
 fs_r2 <- list()
+fs_kl <- list()
 mete_r2 <- list()
+mete_kl <- list()
 
 fs_evar <- list()
 fs_simp <- list()
@@ -99,13 +100,25 @@ for(i in 1:nrow(toy_fs)) {
   s = length(this_rad)
   n = sum(this_rad)
   
+  fs_constraint = get_fs_ct(s, n, nsamples = nsamples, newsamples = F, oldsamples = constraint_samples[[i]][[1]])
+  mete_constraint  = get_mete_prediction(s, n)
+  
   fs_r2[[i]] <- get_stat_list(empirical_rad = this_rad,
                               sampled_rads = constraint_samples[[i]][[1]],
-                              stat = "r2", constraint = get_fs_ct(s, n, nsamples = nsamples, 
-                                                                  newsamples = F, oldsamples = constraint_samples[[i]][[1]]))
+                              stat = "r2", constraint = fs_constraint)
+  fs_kl[[i]] <- get_stat_list(empirical_rad = this_rad,
+                              sampled_rads = constraint_samples[[i]][[1]],
+                              stat = "kl_div", constraint = fs_constraint)
+  
+  
   mete_r2[[i]] <- get_stat_list(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[1]],
-                                stat = "r2", constraint = get_mete_prediction(s, n))
+                                stat = "r2", constraint = mete_constraint)
+  
+  
+  mete_kl[[i]] <- get_stat_list(empirical_rad = this_rad,
+                                sampled_rads = constraint_samples[[i]][[1]],
+                                stat = "kl_div", constraint = mete_constraint)
 
   fs_evar[[i]] <- get_stat_list(empirical_rad = this_rad,
                                 sampled_rads = constraint_samples[[i]][[1]],
@@ -140,12 +153,14 @@ for(i in 1:nrow(toy_fs)) {
 
 ```{r get quantiles}
 fs_r2_quantile <- vapply(fs_r2, FUN = test_quantile, FUN.VALUE = 1)
+fs_kl_quantile <- vapply(fs_kl, FUN = test_quantile, FUN.VALUE =1)
 fs_evar_quantile <- vapply(fs_evar, FUN = test_quantile, FUN.VALUE = 1)
 fs_simp_quantile <- vapply(fs_simp, FUN = test_quantile, FUN.VALUE = 1)
 fs_skew_quantile <- vapply(fs_skew, FUN = test_quantile, FUN.VALUE = 1)
 
 
 mete_r2_quantile <- vapply(mete_r2, FUN = test_quantile, FUN.VALUE = 1)
+mete_kl_quantile <- vapply(mete_kl, FUN = test_quantile, FUN.VALUE =1)
 mete_evar_quantile  <- vapply(mete_evar, FUN = test_quantile, FUN.VALUE = 1)
 mete_simp_quantile  <- vapply(mete_simp, FUN = test_quantile, FUN.VALUE = 1)
 mete_skew_quantile  <- vapply(mete_skew, FUN = test_quantile, FUN.VALUE = 1)
@@ -160,7 +175,7 @@ pull_poilog <- function(pl_list, item) {
 poilog_expmu <- vapply(poilogs, FUN = pull_poilog, FUN.VALUE = 1, item = 1)
 poilog_sig <- vapply(poilogs, FUN = pull_poilog, FUN.VALUE = 1, item = 2)
 
-toy_fs <- cbind(toy_fs, fs_r2_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile, mete_r2_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile, poilog_expmu,
+toy_fs <- cbind(toy_fs, fs_r2_quantile,fs_kl_quantile, fs_evar_quantile, fs_simp_quantile, fs_skew_quantile, mete_r2_quantile, mete_kl_quantile, mete_evar_quantile, mete_simp_quantile, mete_skew_quantile, poilog_expmu,
                 poilog_sig)
 
 if(FALSE) {
@@ -189,6 +204,11 @@ for(i in 1:4) {
     ggtitle(paste0(this_h, " r2")) +
     theme_bw()
   
+  kl_plot <- ggplot(data = this_data, aes(x = trtmnt, y = fs_kl_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$fs_kl_quantile)) +
+    ggtitle(paste0(this_h, " kl")) +
+    theme_bw()
+  
   evar_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = fs_evar_quantile)) +
     geom_jitter(aes(x = this_data$trtmnt, y = this_data$fs_evar_quantile)) +
     ggtitle(paste0(this_h, " evar")) +
@@ -205,8 +225,9 @@ for(i in 1:4) {
     theme_bw()
   
 
-print(gridExtra::grid.arrange(r2_plot, evar_plot, simp_plot, skew_plot,
-                          nrow = 1))
+print(gridExtra::grid.arrange(r2_plot, kl_plot, evar_plot, simp_plot, skew_plot,
+                          nrow = 3))
+
 }
 
 
@@ -224,6 +245,11 @@ for(i in 1:4) {
   r2_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_r2_quantile)) +
     geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_r2_quantile)) +
     ggtitle(paste0(this_h, " r2")) +
+    theme_bw()
+  
+  kl_plot <- ggplot(data = this_data, aes(x = trtmnt, y = mete_kl_quantile)) +
+    geom_jitter(aes(x = this_data$trtmnt, y = this_data$mete_kl_quantile)) +
+    ggtitle(paste0(this_h, " kl")) +
     theme_bw()
   
   evar_plot <-  ggplot(data = this_data, aes(x = trtmnt, y = mete_evar_quantile)) +
@@ -252,8 +278,8 @@ for(i in 1:4) {
     theme_bw()
   
   
-print(gridExtra::grid.arrange(r2_plot, evar_plot, simp_plot, skew_plot,
-                          nrow = 1))
+print(gridExtra::grid.arrange(r2_plot, kl_plot, evar_plot, simp_plot, skew_plot,
+                          nrow = 3))
 print(gridExtra::grid.arrange(poilog_mu_plot, poilog_sig_plot,
                           nrow = 1))
 }

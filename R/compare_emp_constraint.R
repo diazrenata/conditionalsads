@@ -26,10 +26,10 @@ r2 <- function(focal_rad, compare_rad) {
 #'
 kl_div <- function(focal_rad, compare_rad) {
 
-  px = ecdf(focal_rad)
-  py = ecdf(compare_rad)
+  px = focal_rad
+  py = compare_rad
 
-  kl = LaplacesDemon::KLD(px, py)$KLD.px.py
+  kl = entropy::KL.empirical(px, py)
 
   return(kl)
 }
@@ -87,8 +87,8 @@ rad_skew <- function(focal_rad){
 #'
 #' @param empirical_rad vector RAD for empirical community
 #' @param sampled_rads matrix RAD for sampled communities
-#' @param stat character "r2", "evar", "simpson", "rad_skew"
-#' @param constraint if stat = r2, vector comparison RAD (central tendency of feasible set, or METE prediction)
+#' @param stat character "r2", "evar", "simpson", "rad_skew", "kl_div"
+#' @param constraint if stat = r2 or kl_div, vector comparison RAD (central tendency of feasible set, or METE prediction)
 #'
 #' @return list of empirical test stat, sampled test stats
 #' @export
@@ -100,7 +100,7 @@ get_stat_list <- function(empirical_rad, sampled_rads, stat = "r2",
   stat_results_empirical <- NA
   stat_results_sampled <- vector(length = nrow(sampled_rads))
 
-  if(stat == 'r2') {
+  if(stat %in% c('r2', 'kl_div')) {
 
     if(!is.null(constraint)) {
 
@@ -135,9 +135,7 @@ test_quantile <- function(stats_list){
     return(NA)
   }
 
-  if(is.nan(stats_list[[2]])) {
-    return(NA)
-  }
+  stats_list[[2]] <- stats_list[[2]][which(!is.nan(stats_list[[2]]))]
 
   focal_stat = stats_list[[1]]
   sample_stats = stats_list[[2]]
