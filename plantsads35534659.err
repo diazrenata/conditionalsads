@@ -1,3 +1,0 @@
-Error in vector(length = nrow(sampled_rads)) : invalid 'length' argument
-Calls: get_stat_list
-Execution halted

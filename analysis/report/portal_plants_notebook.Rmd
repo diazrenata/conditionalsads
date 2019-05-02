@@ -14,7 +14,7 @@ library(conditionalsads)
 This analysis will also source functions from `meteR` and `feasiblesads`. 
 
 ## 1. Load data
-```{r generate Portal, eval =T}
+```{r generate Portal, eval =F}
 setwd(here::here())
 portal_plants <- process_portal_plants(load_portal_plants(download = F))
 
@@ -26,6 +26,10 @@ plant_abund <- portal_plants[[2]]
 plant_abund <- as.matrix(plant_abund)
 
 ```
+```{r load plant data, echo = F}
+setwd(here::here())
+load('analysis/report/portal_plants.Rds')
+```
 
 ## 2. Generate samples from constraints
 
@@ -34,7 +38,7 @@ For each sample, generate `nsamples` samples from the feasible set and from the 
 **These will be the sample_sads for comparison.**
 
 
-```{r sample constraints, eval = T}
+```{r sample constraints, eval = F}
 
 nsamples <- 2
 
@@ -65,7 +69,7 @@ for(i in 1:nrow(plant_abund)) {
 * Empirical R2 and sample R2 compared to most-likely constraint vector.
 * Empirical and sample evenness (Evar and Simpson's) and skew.
 
-```{r R2, eval =T}
+```{r R2, eval =F}
 
 for(i in 1:nrow(plant_abund)) {
   
@@ -128,7 +132,7 @@ for(i in 1:nrow(plant_abund)) {
 
 ## 4. Get quantiles of empirical test statistics vs. constraints
 
-```{r get quantiles, eval = T}
+```{r get quantiles, eval = F}
 fs_r2_quantile <- vapply(fs_r2, FUN = test_quantile, FUN.VALUE = 1)
 fs_kl_quantile <- vapply(fs_kl, FUN = test_quantile, FUN.VALUE =1)
 fs_evar_quantile <- vapply(fs_evar, FUN = test_quantile, FUN.VALUE = 1)
@@ -165,11 +169,11 @@ plant_abund_results <- cbind(portal_plants[[1]], plant_abund, fs_r2_quantile,fs_
 
 ## 5. Compare quantiles across experimental treatments
 
-```{r fs plots, echo = F}
+```{r fs plots, echo = F, fig.width = 4, fig.height=20}
 # load('plants_done.RData')
 library(ggplot2)
-
-
+setwd(here::here())
+plant_abund_results <- read.csv('plants_mete.csv')
 for(i in 1:2) {
 
   this_season <- unique(plant_abund_results$season)[i]
@@ -179,30 +183,53 @@ for(i in 1:2) {
   
   r2_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_r2_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_r2_quantile)) +
-    ggtitle(paste0(this_season, " r2")) +
+    ggtitle(paste0(this_season, " r2 - FS")) +
     theme_bw()
   
   kl_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_kl_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_kl_quantile)) +
-    ggtitle(paste0(this_season, " kl")) +
+    ggtitle(paste0(this_season, " kl - FS")) +
     theme_bw()
   
   evar_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_evar_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_evar_quantile)) +
-    ggtitle(paste0(this_season, " evar")) +
+    ggtitle(paste0(this_season, " evar - FS")) +
     theme_bw()
   
   simp_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_simp_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_simp_quantile)) +
-    ggtitle(paste0(this_season, " Simpson evenness")) +
+    ggtitle(paste0(this_season, " Simpson evenness - FS")) +
     theme_bw()
   
   skew_plot <-  ggplot(data = this_data, aes(x = trmt, y = fs_skew_quantile)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$fs_skew_quantile)) +
-    ggtitle(paste0(this_season, " skewness")) +
+    ggtitle(paste0(this_season, " skewness - FS")) +
     theme_bw()
   
+    r2_mete_plot <-  ggplot(data = this_data, aes(x = trmt, y = mete_r2_quantile)) +
+    geom_jitter(aes(x = this_data$trmt, y = this_data$mete_r2_quantile)) +
+    ggtitle(paste0(this_season, " r2 - METE")) +
+    theme_bw()
   
+  kl_mete_plot <-  ggplot(data = this_data, aes(x = trmt, y = mete_kl_quantile)) +
+    geom_jitter(aes(x = this_data$trmt, y = this_data$mete_kl_quantile)) +
+    ggtitle(paste0(this_season, " kl - METE")) +
+    theme_bw()
+  
+  evar_mete_plot <-  ggplot(data = this_data, aes(x = trmt, y = mete_evar_quantile)) +
+    geom_jitter(aes(x = this_data$trmt, y = this_data$mete_evar_quantile)) +
+    ggtitle(paste0(this_season, " evar - METE")) +
+    theme_bw()
+  
+  simp_mete_plot <-  ggplot(data = this_data, aes(x = trmt, y = mete_simp_quantile)) +
+    geom_jitter(aes(x = this_data$trmt, y = this_data$mete_simp_quantile)) +
+    ggtitle(paste0(this_season, " Simpson evenness - METE")) +
+    theme_bw()
+  
+  skew_mete_plot <-  ggplot(data = this_data, aes(x = trmt, y = mete_skew_quantile)) +
+    geom_jitter(aes(x = this_data$trmt, y = this_data$mete_skew_quantile)) +
+    ggtitle(paste0(this_season, " skewness - METE")) +
+    theme_bw()
     poilog_mu_plot <- ggplot(data = this_data, aes(x = trmt, y = poilog_expmu)) +
     geom_jitter(aes(x = this_data$trmt, y = this_data$poilog_expmu)) +
     ggtitle(paste0(this_season, " poilog_expmu")) +
@@ -213,9 +240,10 @@ for(i in 1:2) {
     ggtitle(paste0(this_season, " poilog_sig")) +
     theme_bw()
   
-print(gridExtra::grid.arrange(r2_plot, kl_plot, evar_plot, simp_plot, skew_plot,
-                              poilog_mu_plot, poilog_sig_plot,
-                          nrow = 4))
+print(gridExtra::grid.arrange(r2_plot, r2_mete_plot, kl_plot, kl_mete_plot,
+                              evar_plot, evar_mete_plot, simp_plot,  simp_mete_plot, skew_plot,
+                               skew_mete_plot,
+                          nrow = 5))
 }
 
 

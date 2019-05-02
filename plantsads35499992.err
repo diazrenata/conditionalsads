@@ -1,4 +1,0 @@
-Error in distr::DiscreteDistribution(supp = 1:x$state.var["N0"], prob = this.eq(1:x$state.var["N0"])) : 
-  sum of 'prob' has to be (approximately) 1
-Calls: sample_METE -> <Anonymous> -> sad.meteESF -> <Anonymous>
-Execution halted
